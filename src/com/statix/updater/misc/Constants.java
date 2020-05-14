@@ -7,7 +7,7 @@ public class Constants {
 
     // Update constants
     public static String ROM = "statix";
-    public static String DEVICE_PROP = "ro.product.device";
+    public static String DEVICE_PROP = "ro.statix.device";
     public static String STATIX_VERSION_PROP = "ro.statix.version";
     public static String STATIX_BUILD_TYPE_PROP = "ro.statix.buildtype";
 
