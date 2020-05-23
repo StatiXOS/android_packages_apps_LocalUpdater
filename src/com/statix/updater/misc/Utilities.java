@@ -82,15 +82,6 @@ public class Utilities {
         return null;
     }
 
-    public static int getSystemAccent(AppCompatActivity base) {
-        TypedValue typedValue = new TypedValue();
-        ContextThemeWrapper contextThemeWrapper = new ContextThemeWrapper(base,
-                android.R.style.Theme_DeviceDefault);
-        contextThemeWrapper.getTheme().resolveAttribute(android.R.attr.colorAccent,
-                typedValue, true);
-        return typedValue.data;
-    }
-
     public static String[] getPayloadProperties(File update) {
         String[] headerKeyValuePairs;
         try {

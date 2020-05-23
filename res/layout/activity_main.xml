@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="14dp"
-        android:tint="@*android:color/accent_device_default_light"
+        android:tint="@color/colorAccent"
         app:srcCompat="@drawable/ic_ota_update" />
 
     <ImageButton
@@ -91,6 +91,7 @@
         android:layout_centerHorizontal="true"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
+        android:progressTint="@color/colorAccent"
         style="@android:style/Widget.Material.Light.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -130,6 +131,7 @@
                 android:id="@+id/pause_resume"
                 android:layout_width="150dp"
                 android:layout_height="60dp"
+                android:backgroundTint="@color/colorAccent"
                 android:background="@drawable/sample_button" />
 
             <View
@@ -142,6 +144,7 @@
                 android:layout_width="150dp"
                 android:layout_height="60dp"
                 android:layout_marginBottom="100dp"
+                android:backgroundTint="@color/colorAccent"
                 android:background="@drawable/sample_button" />
         </LinearLayout>
     </LinearLayout>
