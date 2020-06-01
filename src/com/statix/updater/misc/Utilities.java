@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipFile;
@@ -71,7 +72,8 @@ public class Utilities {
 
     public static ABUpdate checkForUpdates(Context context) {
         File[] updates = lsFiles(context.getExternalFilesDir(null));
-        Log.d("Updater", java.util.Arrays.toString(updates));
+        Collections.sort(Arrays.asList(updates));
+        Collections.reverse(Arrays.asList(updates));
         if (updates != null) {
             for (File update : updates) {
                 if (isUpdate(update)) {
