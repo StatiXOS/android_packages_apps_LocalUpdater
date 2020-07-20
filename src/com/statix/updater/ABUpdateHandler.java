@@ -1,6 +1,7 @@
 package com.statix.updater;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.UpdateEngine;
 import android.os.UpdateEngineCallback;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import com.statix.updater.misc.Constants;
 import com.statix.updater.misc.Utilities;
 import com.statix.updater.model.ABUpdate;
+import com.statix.updater.services.CopyService;
 
 class ABUpdateHandler {
 
@@ -46,7 +48,8 @@ class ABUpdateHandler {
         }
         AsyncTask.execute(() -> {
             try {
-                Utilities.copyUpdate(mUpdate);
+                CopyService cpy = new CopyService(mUpdate);
+                cpy.startService(new Intent(mContext, CopyService.class));
                 Log.d(TAG, mUpdate.update().toString());
                 String[] payloadProperties = Utilities.getPayloadProperties(mUpdate.update());
                 long offset = Utilities.getZipOffset(mUpdate.getUpdatePath());
