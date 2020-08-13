@@ -2,6 +2,7 @@ package com.statix.updater;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.PowerManager;
 import android.os.UpdateEngine;
 import android.os.UpdateEngineCallback;
 import android.util.Log;
@@ -21,6 +22,8 @@ class ABUpdateHandler {
     private MainViewController mController;
     private UpdateEngine mUpdateEngine;
 
+    private final PowerManager.WakeLock mWakeLock;
+
     private static ABUpdateHandler sInstance = null;
 
     private static final String TAG = "ABUpdateHandler";
@@ -29,7 +32,10 @@ class ABUpdateHandler {
         mContext = ctx;
         mController = controller;
         mUpdate = update;
+        PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
         mUpdateEngine = new UpdateEngine();
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Updater");
+        mWakeLock.setReferenceCounted(false);
     }
 
     public static synchronized ABUpdateHandler getInstance(ABUpdate update, Context context,
@@ -46,6 +52,7 @@ class ABUpdateHandler {
         }
         AsyncTask.execute(() -> {
             try {
+                mWakeLock.acquire();
                 Utilities.copyUpdate(mUpdate);
                 Log.d(TAG, mUpdate.update().toString());
                 String[] payloadProperties = Utilities.getPayloadProperties(mUpdate.update());
@@ -57,6 +64,7 @@ class ABUpdateHandler {
                 Utilities.putPref(Constants.PREF_INSTALLING_AB, true, mContext);
                 mUpdateEngine.applyPayload(zipFileUri, offset, 0, payloadProperties);
             } catch (IOException e) {
+                mWakeLock.release();
                 e.printStackTrace();
                 Log.e(TAG, "Unable to extract update.");
                 mUpdate.setState(Constants.UPDATE_FAILED);
@@ -74,6 +82,7 @@ class ABUpdateHandler {
 
     public void suspend() {
         mUpdateEngine.suspend();
+        mWakeLock.release();
         Utilities.putPref(Constants.PREF_INSTALLING_SUSPENDED_AB, true, mContext);
         Utilities.putPref(Constants.PREF_INSTALLING_AB, false, mContext);
         mUpdate.setState(Constants.UPDATE_PAUSED);
@@ -81,6 +90,7 @@ class ABUpdateHandler {
 
     public void resume() {
         mUpdateEngine.resume();
+        mWakeLock.acquire();
         Utilities.putPref(Constants.PREF_INSTALLING_AB, true, mContext);
         Utilities.putPref(Constants.PREF_INSTALLING_SUSPENDED_AB, false, mContext);
         mUpdate.setState(Constants.UPDATE_IN_PROGRESS);
@@ -91,6 +101,7 @@ class ABUpdateHandler {
         Utilities.putPref(Constants.PREF_INSTALLING_SUSPENDED_AB, false, mContext);
         Utilities.putPref(Constants.PREF_INSTALLING_AB, false, mContext);
         mUpdateEngine.cancel();
+        mWakeLock.release();
         mUpdate.setState(Constants.UPDATE_STOPPED);
     }
 
@@ -106,6 +117,7 @@ class ABUpdateHandler {
                 case UpdateEngine.UpdateStatusConstants.REPORTING_ERROR_EVENT:
                     mUpdate.setState(Constants.UPDATE_FAILED);
                     mController.notifyUpdateStatusChanged(mUpdate, Constants.UPDATE_FAILED);
+                    mWakeLock.release();
                 case UpdateEngine.UpdateStatusConstants.DOWNLOADING:
                     mUpdate.setProgress(Math.round(percent * 100));
                     mController.notifyUpdateStatusChanged(mUpdate, Constants.UPDATE_IN_PROGRESS);
@@ -122,6 +134,7 @@ class ABUpdateHandler {
                 case UpdateEngine.UpdateStatusConstants.UPDATED_NEED_REBOOT: {
                     mUpdate.setState(Constants.UPDATE_SUCCEEDED);
                     mController.notifyUpdateStatusChanged(mUpdate, Constants.UPDATE_SUCCEEDED);
+                    mWakeLock.release();
                 }
                 break;
                 case UpdateEngine.UpdateStatusConstants.IDLE:
@@ -131,6 +144,7 @@ class ABUpdateHandler {
 
         @Override
         public void onPayloadApplicationComplete(int errorCode) {
+            mWakeLock.release();
             if (errorCode != UpdateEngine.ErrorCodeConstants.SUCCESS) {
                 mUpdate.setProgress(0);
                 mUpdate.setState(Constants.UPDATE_FAILED);
