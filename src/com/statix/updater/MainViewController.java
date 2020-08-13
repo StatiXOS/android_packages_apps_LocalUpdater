@@ -2,7 +2,6 @@ package com.statix.updater;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.PowerManager;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -21,8 +20,6 @@ public class MainViewController {
 
     private static MainViewController sInstance = null;
 
-    private final PowerManager.WakeLock mWakeLock;
-
     private List<StatusListener> mListeners = new ArrayList<>();
 
     public static synchronized MainViewController getInstance(Context ctx) {
@@ -35,10 +32,7 @@ public class MainViewController {
     private MainViewController(Context ctx) {
         mBroadcastManager = LocalBroadcastManager.getInstance(ctx);
         mContext = ctx;
-        PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
         mUiThread = new Handler(ctx.getMainLooper());
-        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Updater");
-        mWakeLock.setReferenceCounted(false);
     }
 
     public interface StatusListener {
