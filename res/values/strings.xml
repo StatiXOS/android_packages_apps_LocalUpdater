@@ -8,8 +8,8 @@
     <string name="resume_update">Resume update</string>
     <string name="cancel_update">Cancel update</string>
     <string name="apply_update">Apply update</string>
-    <string name="no_update_available">No update available. Push an update to /sdcard/Android/data/com.statix.updater/files/</string>
-    <string name="check_for_update">Check for update</string>
+    <string name="no_update_available">No update available.</string>
+    <string name="choose_update">Choose update</string>
     <string name="reboot_device">Reboot device</string>
     <string name="update_finalizing">Finalizing… %1$s%% complete</string>
     <string name="cancel">Cancel</string>

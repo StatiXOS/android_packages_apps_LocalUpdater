@@ -71,20 +71,6 @@ public class Utilities {
         }
     }
 
-    public static ABUpdate checkForUpdates(Context context) {
-        File[] updates = lsFiles(context.getExternalFilesDir(null));
-        Collections.sort(Arrays.asList(updates));
-        Collections.reverse(Arrays.asList(updates));
-        if (updates != null) {
-            for (File update : updates) {
-                if (isUpdate(update)) {
-                    return new ABUpdate(update);
-                }
-            }
-        }
-        return null;
-    }
-
     public static String[] getPayloadProperties(File update) {
         String[] headerKeyValuePairs;
         try {

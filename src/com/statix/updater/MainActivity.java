@@ -9,12 +9,19 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.os.SystemProperties;
+import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -50,6 +57,10 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
     private TextView mUpdateView;
     private TextView mUpdateSize;
 
+    private boolean mPermOk;
+
+    private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
+    private static final int ACTIVITY_SELECT_FLASH_FILE = 1;
     private final String TAG = "Updater";
 
     @Override
@@ -79,13 +90,10 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
         // set up prefs
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        // check for updoots in /sdcard/statix_updates
-        mUpdate = Utilities.checkForUpdates(getApplicationContext());
-
         mUpdateControl.setOnClickListener(v -> {
             String buttonText = mUpdateControl.getText().toString();
             String cancel = getString(R.string.cancel_update);
-            String check = getString(R.string.check_for_update);
+            String choose_update = getString(R.string.choose_update);
             String apply = getString(R.string.apply_update);
             if (buttonText.equals(cancel)) {
                 mUpdateHandler.cancel();
@@ -94,9 +102,8 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
                 mUpdateProgressText.setVisibility(View.INVISIBLE);
                 mPauseResume.setVisibility(View.INVISIBLE);
                 mUpdateControl.setText(R.string.reboot_device);
-            } else if (buttonText.equals(check)) {
-                mUpdate = Utilities.checkForUpdates(getApplicationContext());
-                setUpView();
+            } else if (buttonText.equals(choose_update)) {
+                launchUpdatePicker(mUpdateControl);
             } else if (buttonText.equals(apply)){
                 mUpdateHandler.handleUpdate();
                 mUpdateControl.setText(R.string.cancel_update);
@@ -107,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
             }
         });
 
+        requestPermissions();
         setUpView();
     }
 
@@ -149,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
             setButtonVisibilities();
         } else {
             mUpdateView.setText(R.string.no_update_available);
-            mUpdateControl.setText(R.string.check_for_update);
+            mUpdateControl.setText(R.string.choose_update);
             mPauseResume.setVisibility(View.INVISIBLE);
             mABPerfMode.setVisibility(View.INVISIBLE);
         }
@@ -236,10 +244,6 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
     @Override
     protected void onResume() {
         super.onResume();
-        ABUpdate update = Utilities.checkForUpdates(getApplicationContext());
-        if (update != null && !update.equals(mUpdate)) {
-            mUpdate = update;
-        }
         if (mController != null) {
             mController.addUpdateStatusListener(this);
         }
@@ -274,5 +278,108 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
                 .setMessage(R.string.reboot_message)
                 .setPositiveButton(R.string.ok, (dialog, id) -> rebootDevice())
                 .setNegativeButton(R.string.cancel, null).show();
+    }
+
+    // Functions for picking file from local storage
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ACTIVITY_SELECT_FLASH_FILE && resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getData();
+            String flashFilename = getPath(uri);
+            if (flashFilename != null) {
+                mUpdate = new ABUpdate(new File(flashFilename));
+                setUpView();
+            }
+        }
+    }
+
+    private boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    private boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    private String getPath(Uri uri) {
+        if (DocumentsContract.isDocumentUri(this, uri)) {
+            final String docId = DocumentsContract.getDocumentId(uri);
+            // ExternalStorageProvider
+            if (isExternalStorageDocument(uri)) {
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                }
+                if ("home".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + split[1];
+                }
+            }
+            // DownloadsProvider
+            else if (isDownloadsDocument(uri)) {
+                String fileName = getFileNameColumn(uri);
+                if (fileName != null) {
+                    return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + fileName;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getFileNameColumn(Uri uri) {
+        Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(uri, null, null, null, null);
+            while (cursor.moveToNext()) {
+                int index = cursor.getColumnIndexOrThrow("_display_name");
+                return cursor.getString(index);
+            }
+        } catch (Exception e) {
+            // do nothing
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+    private void launchUpdatePicker(View v) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("application/zip");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+
+        try {
+            startActivityForResult(Intent.createChooser(intent,
+                    getResources().getString(R.string.choose_update)),
+                    ACTIVITY_SELECT_FLASH_FILE);
+        } catch (android.content.ActivityNotFoundException ex) {
+            // do nothing
+        }
+    }
+
+    // Request storage permissions
+    private void requestPermissions() {
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
+                    PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        } else {
+            mPermOk = true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mPermOk = true;
+                }
+            }
+        }
     }
 }
