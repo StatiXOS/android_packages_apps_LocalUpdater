@@ -6,17 +6,16 @@ import android.os.UpdateEngine;
 import android.os.UpdateEngineCallback;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 
 import com.statix.updater.misc.Constants;
 import com.statix.updater.misc.Utilities;
-import com.statix.updater.model.ABUpdate;
+import com.statix.updater.model.Update;
 
 class ABUpdateHandler {
 
     private boolean mBound;
-    private ABUpdate mUpdate;
+    private Update mUpdate;
     private Context mContext;
     private MainViewController mController;
     private UpdateEngine mUpdateEngine;
@@ -27,7 +26,7 @@ class ABUpdateHandler {
 
     private static final String TAG = "ABUpdateHandler";
 
-    private ABUpdateHandler(ABUpdate update, Context ctx, MainViewController controller) {
+    private ABUpdateHandler(Update update, Context ctx, MainViewController controller) {
         mContext = ctx;
         mController = controller;
         mUpdate = update;
@@ -37,7 +36,7 @@ class ABUpdateHandler {
         mWakeLock.setReferenceCounted(false);
     }
 
-    public static synchronized ABUpdateHandler getInstance(ABUpdate update, Context context,
+    public static synchronized ABUpdateHandler getInstance(Update update, Context context,
                                                            MainViewController controller) {
         if (sInstance == null) {
             sInstance = new ABUpdateHandler(update, context, controller);
@@ -45,7 +44,7 @@ class ABUpdateHandler {
         return sInstance;
     }
 
-    synchronized void handleUpdate() {
+    synchronized void handleABUpdate() {
         if (!mBound) {
             mBound = mUpdateEngine.bind(mUpdateEngineCallback);
         }

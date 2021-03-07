@@ -11,5 +11,6 @@ public class PreferenceReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Utilities.resetPreferences(context);
         Utilities.cleanInternalDir();
+        Utilities.cleanUpdateDir(context);
     }
 }
