@@ -3,7 +3,7 @@ package com.statix.localupdater.history;
 import android.util.Log;
 
 import com.statix.localupdater.misc.Constants;
-import com.statix.localupdater.model.ABUpdate;
+import com.statix.localupdater.model.Update;
 import com.statix.localupdater.model.HistoryCard;
 
 import org.json.JSONArray;
@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class HistoryUtils {
 
-    public static synchronized void writeUpdateToJson(File historyFile, ABUpdate update) throws IOException, JSONException {
+    public static synchronized void writeUpdateToJson(File historyFile, Update update) throws IOException, JSONException {
         boolean updateSuccessful = update.state() == Constants.UPDATE_SUCCEEDED;
         String updateName = update.update().getName();
         ArrayList<HistoryCard> cards = readFromJson(historyFile);
