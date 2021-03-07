@@ -1,7 +1,6 @@
 package com.statix.localupdater.misc;
 
 import android.content.Context;
-import android.os.FileUtils;
 import android.os.SystemProperties;
 import android.util.Log;
 
@@ -57,14 +56,26 @@ public class Utilities {
             name = name.substring(0, pos);
         }
         try {
-            File dest = createNewFileWithPermissions(new File(Constants.UPDATE_INTERNAL_DIR), name);
-            InputStream is = new FileInputStream(src);
-            OutputStream os = new FileOutputStream(dest);
-            FileUtils.copy(is, os);
+            File dest = new File(Constants.UPDATE_INTERNAL_DIR + name);
+            copy(new FileInputStream(src), new FileOutputStream(dest));
             source.setUpdate(dest);
         } catch (IOException e) {
             e.printStackTrace();
             Log.e("Utilities", "Unable to copy update");
+        }
+    }
+
+    private static void copy(FileInputStream is, FileOutputStream os) throws IOException {
+        try {
+            // Transfer bytes from in to out
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = is.read(buf)) > 0) {
+                os.write(buf, 0, len);
+            }
+        } finally {
+            is.close();
+            os.close();
         }
     }
 
@@ -157,14 +168,5 @@ public class Utilities {
         for (String pref : Constants.PREFS_LIST) {
             putPref(pref, false, context);
         }
-    }
-
-    private static File createNewFileWithPermissions(File destination, String name) throws IOException {
-        File update = File.createTempFile(name, ".zip", destination);
-        FileUtils.setPermissions(
-                /* path= */ update,
-                /* mode= */ FileUtils.S_IRWXU | FileUtils.S_IRGRP | FileUtils.S_IROTH,
-                /* uid= */ -1, /* gid= */ -1);
-        return update;
     }
 }

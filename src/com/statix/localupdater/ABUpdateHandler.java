@@ -1,7 +1,6 @@
 package com.statix.localupdater;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.os.UpdateEngine;
 import android.os.UpdateEngineCallback;
@@ -49,7 +48,7 @@ class ABUpdateHandler {
         if (!mBound) {
             mBound = mUpdateEngine.bind(mUpdateEngineCallback);
         }
-        AsyncTask.execute(() -> {
+        new Thread(() -> {
             try {
                 mWakeLock.acquire();
                 Utilities.copyUpdate(mUpdate);
@@ -69,7 +68,7 @@ class ABUpdateHandler {
                 mUpdate.setState(Constants.UPDATE_FAILED);
                 mController.notifyUpdateStatusChanged(mUpdate, Constants.UPDATE_FAILED);
             }
-        });
+        }).start();
     }
 
     public void reconnect() {
