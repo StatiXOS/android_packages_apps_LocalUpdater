@@ -23,6 +23,7 @@ LOCAL_PACKAGE_NAME := LocalUpdater
 LOCAL_PRIVATE_PLATFORM_APIS := true
 LOCAL_PRIVILEGED_MODULE := true
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+LOCAL_CERTIFICATE := platform
 LOCAL_REQUIRED_MODULES := privapp_whitelist_com.statix.localupdater.xml
 
 include frameworks/base/packages/SettingsLib/common.mk
