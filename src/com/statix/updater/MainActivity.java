@@ -27,7 +27,7 @@ import com.statix.updater.history.HistoryUtils;
 import com.statix.updater.history.HistoryView;
 import com.statix.updater.misc.Constants;
 import com.statix.updater.misc.Utilities;
-import com.statix.updater.model.ABUpdate;
+import com.statix.updater.model.Update;
 
 import org.json.JSONException;
 
@@ -37,7 +37,7 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity implements MainViewController.StatusListener {
 
     private ABUpdateHandler mUpdateHandler;
-    private ABUpdate mUpdate;
+    private Update mUpdate;
     private Button mUpdateControl;
     private Button mPauseResume;
     private ImageButton mHistory;
@@ -98,10 +98,14 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
                 mUpdate = Utilities.checkForUpdates(getApplicationContext());
                 setUpView();
             } else if (buttonText.equals(apply)){
-                mUpdateHandler.handleUpdate();
-                mUpdateControl.setText(R.string.cancel_update);
-                mPauseResume.setVisibility(View.VISIBLE);
-                mPauseResume.setText(R.string.pause_update);
+                if (Utilities.isABDevice() && Utilities.isABUpdate(mUpdate.update())) {
+                    mUpdateHandler.handleABUpdate();
+                    mUpdateControl.setText(R.string.cancel_update);
+                    mPauseResume.setVisibility(View.VISIBLE);
+                    mPauseResume.setText(R.string.pause_update);
+                } else if (!Utilities.isABUpdate(mUpdate.update())) {
+                    Utilities.installUncryptPackage(getApplicationContext(), mUpdate);
+                }
             } else { // reboot
                 showRebootDialog();
             }
@@ -119,14 +123,16 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
                     || mSharedPrefs.getBoolean(PREF_INSTALLED_AB, false)) {
                 mUpdateHandler.reconnect();
             }
-            // ab perf switch
-            mABPerfMode.setVisibility(View.VISIBLE);
-            mABPerfMode.setChecked(mSharedPrefs.getBoolean(ENABLE_AB_PERF_MODE, false));
-            mABPerfMode.setOnClickListener(v -> {
+            if (Utilities.isABDevice()) {
+                // ab perf switch
+                mABPerfMode.setVisibility(View.VISIBLE);
+                mABPerfMode.setChecked(mSharedPrefs.getBoolean(ENABLE_AB_PERF_MODE, false));
+                mABPerfMode.setOnClickListener(v -> {
+                    mUpdateHandler.setPerformanceMode(mABPerfMode.isChecked());
+                    Log.d(TAG, Boolean.toString(mSharedPrefs.getBoolean(ENABLE_AB_PERF_MODE, false)));
+                });
                 mUpdateHandler.setPerformanceMode(mABPerfMode.isChecked());
-                Log.d(TAG, Boolean.toString(mSharedPrefs.getBoolean(ENABLE_AB_PERF_MODE, false)));
-            });
-            mUpdateHandler.setPerformanceMode(mABPerfMode.isChecked());
+            }
             // apply updoot button
             String updateText = getString(R.string.to_install, mUpdate.update().getName());
             mUpdateView.setText(updateText);
@@ -174,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
     }
 
     @Override
-    public void onUpdateStatusChanged(ABUpdate update, int state) {
+    public void onUpdateStatusChanged(Update update, int state) {
         int updateProgress = update.getProgress();
         File f = new File(Constants.HISTORY_PATH);
         mUpdate.setState(state);
@@ -236,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements MainViewControlle
     @Override
     protected void onResume() {
         super.onResume();
-        ABUpdate update = Utilities.checkForUpdates(getApplicationContext());
+        Update update = Utilities.checkForUpdates(getApplicationContext());
         if (update != null && !update.equals(mUpdate)) {
             mUpdate = update;
         }

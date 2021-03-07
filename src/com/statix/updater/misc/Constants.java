@@ -9,6 +9,7 @@ public class Constants {
     public static String DEVICE_PROP = "ro.statix.device";
     public static String STATIX_VERSION_PROP = "ro.statix.version";
     public static String STATIX_BUILD_TYPE_PROP = "ro.statix.buildtype";
+    public static final String UNCRYPT_FILE_EXT = ".uncrypt";
 
     // Status constants
     public static final int UPDATE_FINALIZING = 0;
@@ -29,4 +30,9 @@ public class Constants {
     // History constants
     public static final String HISTORY_FILE = "history.json";
     public static final String HISTORY_PATH = UPDATE_INTERNAL_DIR + HISTORY_FILE;
+
+    // A/B constants
+    public static final String PROP_AB_DEVICE = "ro.build.ab_update";
+    public static final String AB_PAYLOAD_BIN_PATH = "payload.bin";
+    public static final String AB_PAYLOAD_PROPERTIES_PATH = "payload_properties.txt";
 }

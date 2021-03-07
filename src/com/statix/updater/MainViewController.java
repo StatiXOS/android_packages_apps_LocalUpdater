@@ -3,7 +3,7 @@ package com.statix.updater;
 import android.content.Context;
 import android.os.Handler;
 
-import com.statix.updater.model.ABUpdate;
+import com.statix.updater.model.Update;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +32,10 @@ public class MainViewController {
     }
 
     public interface StatusListener {
-        void onUpdateStatusChanged(ABUpdate update, int state);
+        void onUpdateStatusChanged(Update update, int state);
     }
 
-    public void notifyUpdateStatusChanged(final ABUpdate update, final int state) {
+    public void notifyUpdateStatusChanged(final Update update, final int state) {
         mUiThread.post(() -> {
             for (StatusListener listener : mListeners) {
                 listener.onUpdateStatusChanged(update, state);
