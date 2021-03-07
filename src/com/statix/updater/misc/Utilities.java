@@ -2,20 +2,21 @@ package com.statix.updater.misc;
 
 import android.content.Context;
 import android.os.SystemProperties;
+import android.os.storage.StorageManager;
 import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
-import com.statix.updater.model.ABUpdate;
+import com.statix.updater.model.Update;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,7 +49,7 @@ public class Utilities {
         return prefixes && versionUpgrade && sameVariant;
     }
 
-    public static void copyUpdate(ABUpdate source) {
+    public static void copyUpdate(Update source) {
         File src = source.update();
         String name = src.getName();
         int pos = name.lastIndexOf(".");
@@ -79,14 +80,14 @@ public class Utilities {
         }
     }
 
-    public static ABUpdate checkForUpdates(Context context) {
+    public static Update checkForUpdates(Context context) {
         File[] updates = lsFiles(context.getExternalFilesDir(null));
         Collections.sort(Arrays.asList(updates));
         Collections.reverse(Arrays.asList(updates));
         if (updates != null) {
             for (File update : updates) {
                 if (isUpdate(update)) {
-                    return new ABUpdate(update);
+                    return new Update(update);
                 }
             }
         }
@@ -167,6 +168,52 @@ public class Utilities {
     public static void resetPreferences(Context context) {
         for (String pref : Constants.PREFS_LIST) {
             putPref(pref, false, context);
+        }
+    }
+
+    public static boolean isEncrypted(Context context, File file) {
+        StorageManager sm = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+        return sm.isEncrypted(file);
+    }
+
+    public static boolean isABDevice() {
+        return SystemProperties.getBoolean(Constants.PROP_AB_DEVICE, false);
+    }
+
+    public static boolean isABUpdate(ZipFile zipFile) {
+        return zipFile.getEntry(Constants.AB_PAYLOAD_BIN_PATH) != null &&
+                zipFile.getEntry(Constants.AB_PAYLOAD_PROPERTIES_PATH) != null;
+    }
+
+    public static boolean isABUpdate(File file) {
+        try {
+            ZipFile zipFile = new ZipFile(file);
+            boolean isAB = isABUpdate(zipFile);
+            zipFile.close();
+            return isAB;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void installUncryptPackage(Context context, File file) {
+        if (isEncrypted(context, file)) {
+            // uncrypt rewrites the file so that it can be read without mounting
+            // the filesystem, so create a copy of it.
+            String uncryptFilePath = file.getAbsolutePath() + Constants.UNCRYPT_FILE_EXT;
+            try {
+                FileOutputStream uncryptFile = new FileOutputStream(new File(uncryptFilePath));
+                copy(new FileInputStream(file), uncryptFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                android.os.RecoverySystem.installPackage(context, file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
