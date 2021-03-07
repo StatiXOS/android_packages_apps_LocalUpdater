@@ -1,16 +1,13 @@
-package com.statix.updater.misc;
+package com.statix.localupdater.misc;
 
 import android.content.Context;
 import android.os.FileUtils;
 import android.os.SystemProperties;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
-import com.statix.updater.model.ABUpdate;
+import com.statix.localupdater.model.ABUpdate;
 
 import java.io.BufferedReader;
 import java.io.File;

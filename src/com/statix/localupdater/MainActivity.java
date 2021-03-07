@@ -1,9 +1,9 @@
-package com.statix.updater;
+package com.statix.localupdater;
 
-import static com.statix.updater.misc.Constants.PREF_INSTALLED_AB;
-import static com.statix.updater.misc.Constants.PREF_INSTALLING_AB;
-import static com.statix.updater.misc.Constants.PREF_INSTALLING_SUSPENDED_AB;
-import static com.statix.updater.misc.Constants.ENABLE_AB_PERF_MODE;
+import static com.statix.localupdater.misc.Constants.PREF_INSTALLED_AB;
+import static com.statix.localupdater.misc.Constants.PREF_INSTALLING_AB;
+import static com.statix.localupdater.misc.Constants.PREF_INSTALLING_SUSPENDED_AB;
+import static com.statix.localupdater.misc.Constants.ENABLE_AB_PERF_MODE;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,11 +23,11 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.statix.updater.history.HistoryUtils;
-import com.statix.updater.history.HistoryView;
-import com.statix.updater.misc.Constants;
-import com.statix.updater.misc.Utilities;
-import com.statix.updater.model.ABUpdate;
+import com.statix.localupdater.history.HistoryUtils;
+import com.statix.localupdater.history.HistoryView;
+import com.statix.localupdater.misc.Constants;
+import com.statix.localupdater.misc.Utilities;
+import com.statix.localupdater.model.ABUpdate;
 
 import org.json.JSONException;
 

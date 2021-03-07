@@ -1,4 +1,4 @@
-package com.statix.updater;
+package com.statix.localupdater;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,12 +7,11 @@ import android.os.UpdateEngine;
 import android.os.UpdateEngineCallback;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 
-import com.statix.updater.misc.Constants;
-import com.statix.updater.misc.Utilities;
-import com.statix.updater.model.ABUpdate;
+import com.statix.localupdater.misc.Constants;
+import com.statix.localupdater.misc.Utilities;
+import com.statix.localupdater.model.ABUpdate;
 
 class ABUpdateHandler {
 

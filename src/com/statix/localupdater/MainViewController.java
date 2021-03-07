@@ -1,9 +1,9 @@
-package com.statix.updater;
+package com.statix.localupdater;
 
 import android.content.Context;
 import android.os.Handler;
 
-import com.statix.updater.model.ABUpdate;
+import com.statix.localupdater.model.ABUpdate;
 
 import java.util.ArrayList;
 import java.util.List;

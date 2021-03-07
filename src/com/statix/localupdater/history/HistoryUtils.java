@@ -1,10 +1,10 @@
-package com.statix.updater.history;
+package com.statix.localupdater.history;
 
 import android.util.Log;
 
-import com.statix.updater.misc.Constants;
-import com.statix.updater.model.ABUpdate;
-import com.statix.updater.model.HistoryCard;
+import com.statix.localupdater.misc.Constants;
+import com.statix.localupdater.model.ABUpdate;
+import com.statix.localupdater.model.HistoryCard;
 
 import org.json.JSONArray;
 import org.json.JSONException;

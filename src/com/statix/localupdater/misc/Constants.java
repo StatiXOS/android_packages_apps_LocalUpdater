@@ -1,4 +1,4 @@
-package com.statix.updater.misc;
+package com.statix.localupdater.misc;
 
 public class Constants {
 
