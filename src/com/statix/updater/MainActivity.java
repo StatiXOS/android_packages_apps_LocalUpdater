@@ -23,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.statix.updater.controller.ABUpdateHandler;
 import com.statix.updater.history.HistoryUtils;
 import com.statix.updater.history.HistoryView;
 import com.statix.updater.misc.Constants;

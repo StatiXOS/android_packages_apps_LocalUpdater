@@ -1,4 +1,4 @@
-package com.statix.updater;
+package com.statix.updater.controller;
 
 import android.content.Context;
 import android.os.PowerManager;
@@ -8,11 +8,12 @@ import android.util.Log;
 
 import java.io.IOException;
 
+import com.statix.updater.MainViewController;
 import com.statix.updater.misc.Constants;
 import com.statix.updater.misc.Utilities;
 import com.statix.updater.model.Update;
 
-class ABUpdateHandler {
+public class ABUpdateHandler {
 
     private boolean mBound;
     private Update mUpdate;
@@ -44,7 +45,7 @@ class ABUpdateHandler {
         return sInstance;
     }
 
-    synchronized void handleABUpdate() {
+    public synchronized void handleABUpdate() {
         if (!mBound) {
             mBound = mUpdateEngine.bind(mUpdateEngineCallback);
         }

@@ -8,7 +8,9 @@ public class Update implements Serializable {
 
     private int mState;
     private File mUpdate;
-    private int mProgress;
+    private int mProgress = 0;
+
+    public Update() {}
 
     public Update(File update) {
         mUpdate = update;
@@ -40,5 +42,9 @@ public class Update implements Serializable {
 
     public String getUpdatePath() {
         return mUpdate.getAbsolutePath();
+    }
+
+    public String getName() {
+        return mUpdate.getName();
     }
 }

@@ -20,6 +20,12 @@ public class Constants {
     public static final int UPDATE_IN_PROGRESS = 5;
     public static final int UPDATE_VERIFYING = 6;
 
+    // Intent constants
+    public static final String INTENT_UPDATE_NAME = "update_name";
+    public static final String ACTION_INSTALL_PROGRESS = "action_install_progress";
+    public static final String ACTION_UPDATE_COMPLETED = "action_update_completed";
+    public static final String ACTION_UPDATE_STATUS = "action_update_status_change";
+
     // Preference Constants
     public static final String PREF_INSTALLING_SUSPENDED_AB = "installation_suspended_ab";
     public static final String PREF_INSTALLING_AB = "installing_ab";
