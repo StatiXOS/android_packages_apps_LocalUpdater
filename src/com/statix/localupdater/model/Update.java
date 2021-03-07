@@ -3,14 +3,14 @@ package com.statix.localupdater.model;
 import java.io.File;
 import java.io.Serializable;
 
-/** Represents an A/B update */
-public class ABUpdate implements Serializable {
+/** Represents an update */
+public class Update implements Serializable {
 
     private int mState;
     private File mUpdate;
     private int mProgress;
 
-    public ABUpdate(File update) {
+    public Update(File update) {
         mUpdate = update;
     }
 
